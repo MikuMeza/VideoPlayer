@@ -9,10 +9,10 @@
         tools:context=".MainActivity">
 
 
-        <com.google.android.exoplayer2.ui.PlayerView
+        <com.google.android.exoplayer2.ui.SimpleExoPlayerView
             android:id="@+id/exoplayerView"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="500dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -24,7 +24,7 @@
                 android:layout_gravity="center"
                 android:visibility="invisible" />
 
-        </com.google.android.exoplayer2.ui.PlayerView>
+        </com.google.android.exoplayer2.ui.SimpleExoPlayerView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
