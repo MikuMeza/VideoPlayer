@@ -1,52 +1,98 @@
 package com.project.videoplayerapplication
 
 
+import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo
+import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.Assertions
 import com.google.android.exoplayer2.util.Util
+import com.project.videoplayerapplication.databinding.ActivityMainBinding
 
 
 class MainActivity : AppCompatActivity() {
     private var mPlayer: SimpleExoPlayer? = null
     private lateinit var playerView: StyledPlayerView
+    private lateinit var binding: ActivityMainBinding
     private var playWhenReady = true
     private var currentWindow = 0
     private var playbackPosition: Long = 0
-    private val hlsUrl =
-        "https://bitmovin-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
-//        private val hlsUrl="https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8"
 
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        playerView = findViewById(R.id.playerView)
-
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
     }
 
+//    private fun initPlayerNotificationManager() {
+//        val channel = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+//            NotificationChannel(
+//                NOTIFICATION_CHANNEL,
+//                NOTIFICATION_CHANNEL,
+//                NotificationManager.IMPORTANCE_HIGH
+//            )
+//        } else {
+//            TODO("VERSION.SDK_INT < O")
+//        }
+//        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+//        notificationManager.createNotificationChannel(channel)
+//
+//        playerNotificationManager = PlayerNotificationManager.Builder(this,
+//            NOTIFICATION_ID,
+//            NOTIFICATION_CHANNEL,
+//            object : PlayerNotificationManager.MediaDescriptionAdapter {
+//                override fun getCurrentContentTitle(player: Player): CharSequence =
+//                    player.currentMediaItem?.mediaMetadata?.title ?: "Music"
+//
+//                override fun createCurrentContentIntent(player: Player): PendingIntent? {
+//                    return null
+//                }
+//
+//                override fun getCurrentContentText(player: Player): CharSequence? {
+//                    return "Music Content Text"
+//                }
+//
+//                override fun getCurrentLargeIcon(
+//                    player: Player,
+//                    callback: PlayerNotificationManager.BitmapCallback
+//                ): Bitmap? {
+//                    return BitmapFactory.decodeResource(applicationContext.resources, R.drawable.ic_play_button)
+//                }
+//
+//            })
+//            .build()
+//        playerNotificationManager.setPlayer(exoplayer)
+//    }
     private fun initPlayer() {
         mPlayer = SimpleExoPlayer.Builder(this).build()
-        // Bind the player to the view.
-        playerView.player = mPlayer
+        binding.playerView.player = mPlayer
         mPlayer!!.playWhenReady = true
         mPlayer!!.seekTo(playbackPosition)
-        mPlayer!!.prepare(buildMediaSource(), false, false)
 
-        println("Length of track :" + mPlayer!!.currentTrackGroups)
+        NetworkLiveData.observe(this, { status ->
+            if (status)
+                mPlayer!!.prepare(buildMediaSource(), false, false)
+            else
+                Toast.makeText(this,"No network available",Toast.LENGTH_LONG).show()
+        })
 
     }
 
@@ -54,6 +100,7 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
         if (Util.SDK_INT >= 24) {
             initPlayer()
+
         }
     }
 
@@ -91,39 +138,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildMediaSource(): MediaSource {
-        val userAgent =
-            Util.getUserAgent(playerView.context, playerView.context.getString(R.string.app_name))
 
         val dataSourceFactory = DefaultHttpDataSourceFactory("exo-player")
         val hlsMediaSource =
-            HlsMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(hlsUrl))
+            HlsMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(videoUrl))
 
         return hlsMediaSource
     }
-
-//    fun setAudioTrack(track: Int) {
-//        println("setAudioTrack: $track")
-//        val mappedTrackInfo: MappedTrackInfo =
-//            Assertions.checkNotNull(trackSelector.getCurrentMappedTrackInfo())
-//        val parameters: DefaultTrackSelector.Parameters = trackSelector.getParameters()
-//        val builder = parameters.buildUpon()
-//        for (rendererIndex in 0 until mappedTrackInfo.rendererCount) {
-//            val trackType = mappedTrackInfo.getRendererType(rendererIndex)
-//            if (trackType == C.TRACK_TYPE_AUDIO) {
-//                builder.clearSelectionOverrides(rendererIndex)
-//                    .setRendererDisabled(rendererIndex, false)
-//                val groupIndex = track - 1
-//                val tracks = intArrayOf(0)
-//                val override = SelectionOverride(groupIndex, *tracks)
-//                builder.setSelectionOverride(
-//                    rendererIndex,
-//                    mappedTrackInfo.getTrackGroups(rendererIndex),
-//                    override
-//                )
-//            }
-//        }
-//        trackSelector.setParameters(builder)
-//        curentAudioTrack = track
-//    }
 
 }
