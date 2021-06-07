@@ -1,16 +1,16 @@
 package com.project.videoplayerapplication
 
 
+import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.Assertions
@@ -42,7 +42,12 @@ class MainActivity : AppCompatActivity() {
         playerView.player = mPlayer
         mPlayer!!.playWhenReady = true
         mPlayer!!.seekTo(playbackPosition)
-        mPlayer!!.prepare(buildMediaSource(), false, false)
+        NetworkLiveData.observe(this, { status ->
+            if (status)
+                mPlayer!!.prepare(buildMediaSource(), false, false)
+            else
+                Toast.makeText(this,"No network available",Toast.LENGTH_LONG).show()
+        })
 
     }
 
@@ -50,6 +55,7 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
         if (Util.SDK_INT >= 24) {
             initPlayer()
+
         }
     }
 
@@ -87,11 +93,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildMediaSource(): MediaSource {
-//        val userAgent =
-//            Util.getUserAgent(
-//                playerView.context,
-//                playerView.context.getString(R.string.app_name)
-//            )
 
         val dataSourceFactory = DefaultHttpDataSourceFactory("exo-player")
         val hlsMediaSource =
