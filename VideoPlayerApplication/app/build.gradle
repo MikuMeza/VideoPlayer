@@ -46,7 +46,7 @@ dependencies {
     //Exoplayer
 
     //dependancy for exoplayer
-    implementation 'com.google.android.exoplayer:exoplayer:2.11.6'
+    implementation 'com.google.android.exoplayer:exoplayer:2.14.0'
     //for core support in exoplayer.
     implementation 'com.google.android.exoplayer:exoplayer-core:r2.4.0'
     //for adding dash support in our exoplayer.
