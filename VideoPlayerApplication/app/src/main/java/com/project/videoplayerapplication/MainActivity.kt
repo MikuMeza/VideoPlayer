@@ -3,34 +3,29 @@ package com.project.videoplayerapplication
 
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
-import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
-import com.google.android.exoplayer2.extractor.ExtractorsFactory
-import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.trackselection.TrackSelector
-import com.google.android.exoplayer2.ui.PlayerView
-import com.google.android.exoplayer2.upstream.BandwidthMeter
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo
+import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
+import com.google.android.exoplayer2.util.Assertions
 import com.google.android.exoplayer2.util.Util
 
 
 class MainActivity : AppCompatActivity() {
     private var mPlayer: SimpleExoPlayer? = null
-    private lateinit var playerView: PlayerView
+    private lateinit var playerView: StyledPlayerView
     private var playWhenReady = true
     private var currentWindow = 0
     private var playbackPosition: Long = 0
     private val hlsUrl =
-        "https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8"
+        "https://bitmovin-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
+//        private val hlsUrl="https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8"
 
 
 
@@ -50,6 +45,8 @@ class MainActivity : AppCompatActivity() {
         mPlayer!!.playWhenReady = true
         mPlayer!!.seekTo(playbackPosition)
         mPlayer!!.prepare(buildMediaSource(), false, false)
+
+        println("Length of track :" + mPlayer!!.currentTrackGroups)
 
     }
 
@@ -103,5 +100,30 @@ class MainActivity : AppCompatActivity() {
 
         return hlsMediaSource
     }
+
+//    fun setAudioTrack(track: Int) {
+//        println("setAudioTrack: $track")
+//        val mappedTrackInfo: MappedTrackInfo =
+//            Assertions.checkNotNull(trackSelector.getCurrentMappedTrackInfo())
+//        val parameters: DefaultTrackSelector.Parameters = trackSelector.getParameters()
+//        val builder = parameters.buildUpon()
+//        for (rendererIndex in 0 until mappedTrackInfo.rendererCount) {
+//            val trackType = mappedTrackInfo.getRendererType(rendererIndex)
+//            if (trackType == C.TRACK_TYPE_AUDIO) {
+//                builder.clearSelectionOverrides(rendererIndex)
+//                    .setRendererDisabled(rendererIndex, false)
+//                val groupIndex = track - 1
+//                val tracks = intArrayOf(0)
+//                val override = SelectionOverride(groupIndex, *tracks)
+//                builder.setSelectionOverride(
+//                    rendererIndex,
+//                    mappedTrackInfo.getTrackGroups(rendererIndex),
+//                    override
+//                )
+//            }
+//        }
+//        trackSelector.setParameters(builder)
+//        curentAudioTrack = track
+//    }
 
 }
