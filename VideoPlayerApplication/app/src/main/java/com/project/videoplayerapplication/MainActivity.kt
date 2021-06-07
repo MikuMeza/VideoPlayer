@@ -25,8 +25,6 @@ class MainActivity : AppCompatActivity() {
     private var playbackPosition: Long = 0
     private val hlsUrl =
         "https://bitmovin-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
-//        private val hlsUrl="https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8"
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,8 +43,6 @@ class MainActivity : AppCompatActivity() {
         mPlayer!!.playWhenReady = true
         mPlayer!!.seekTo(playbackPosition)
         mPlayer!!.prepare(buildMediaSource(), false, false)
-
-        println("Length of track :" + mPlayer!!.currentTrackGroups)
 
     }
 
@@ -91,8 +87,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildMediaSource(): MediaSource {
-        val userAgent =
-            Util.getUserAgent(playerView.context, playerView.context.getString(R.string.app_name))
+//        val userAgent =
+//            Util.getUserAgent(
+//                playerView.context,
+//                playerView.context.getString(R.string.app_name)
+//            )
 
         val dataSourceFactory = DefaultHttpDataSourceFactory("exo-player")
         val hlsMediaSource =
@@ -100,30 +99,5 @@ class MainActivity : AppCompatActivity() {
 
         return hlsMediaSource
     }
-
-//    fun setAudioTrack(track: Int) {
-//        println("setAudioTrack: $track")
-//        val mappedTrackInfo: MappedTrackInfo =
-//            Assertions.checkNotNull(trackSelector.getCurrentMappedTrackInfo())
-//        val parameters: DefaultTrackSelector.Parameters = trackSelector.getParameters()
-//        val builder = parameters.buildUpon()
-//        for (rendererIndex in 0 until mappedTrackInfo.rendererCount) {
-//            val trackType = mappedTrackInfo.getRendererType(rendererIndex)
-//            if (trackType == C.TRACK_TYPE_AUDIO) {
-//                builder.clearSelectionOverrides(rendererIndex)
-//                    .setRendererDisabled(rendererIndex, false)
-//                val groupIndex = track - 1
-//                val tracks = intArrayOf(0)
-//                val override = SelectionOverride(groupIndex, *tracks)
-//                builder.setSelectionOverride(
-//                    rendererIndex,
-//                    mappedTrackInfo.getTrackGroups(rendererIndex),
-//                    override
-//                )
-//            }
-//        }
-//        trackSelector.setParameters(builder)
-//        curentAudioTrack = track
-//    }
 
 }
