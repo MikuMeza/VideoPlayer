@@ -2,46 +2,91 @@ package com.project.videoplayerapplication
 
 
 import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
+import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.Assertions
 import com.google.android.exoplayer2.util.Util
+import com.project.videoplayerapplication.databinding.ActivityMainBinding
 
 
 class MainActivity : AppCompatActivity() {
     private var mPlayer: SimpleExoPlayer? = null
     private lateinit var playerView: StyledPlayerView
+    private lateinit var binding: ActivityMainBinding
     private var playWhenReady = true
     private var currentWindow = 0
     private var playbackPosition: Long = 0
-    private val hlsUrl =
-        "https://bitmovin-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        playerView = findViewById(R.id.playerView)
-
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
     }
 
+//    private fun initPlayerNotificationManager() {
+//        val channel = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+//            NotificationChannel(
+//                NOTIFICATION_CHANNEL,
+//                NOTIFICATION_CHANNEL,
+//                NotificationManager.IMPORTANCE_HIGH
+//            )
+//        } else {
+//            TODO("VERSION.SDK_INT < O")
+//        }
+//        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+//        notificationManager.createNotificationChannel(channel)
+//
+//        playerNotificationManager = PlayerNotificationManager.Builder(this,
+//            NOTIFICATION_ID,
+//            NOTIFICATION_CHANNEL,
+//            object : PlayerNotificationManager.MediaDescriptionAdapter {
+//                override fun getCurrentContentTitle(player: Player): CharSequence =
+//                    player.currentMediaItem?.mediaMetadata?.title ?: "Music"
+//
+//                override fun createCurrentContentIntent(player: Player): PendingIntent? {
+//                    return null
+//                }
+//
+//                override fun getCurrentContentText(player: Player): CharSequence? {
+//                    return "Music Content Text"
+//                }
+//
+//                override fun getCurrentLargeIcon(
+//                    player: Player,
+//                    callback: PlayerNotificationManager.BitmapCallback
+//                ): Bitmap? {
+//                    return BitmapFactory.decodeResource(applicationContext.resources, R.drawable.ic_play_button)
+//                }
+//
+//            })
+//            .build()
+//        playerNotificationManager.setPlayer(exoplayer)
+//    }
     private fun initPlayer() {
         mPlayer = SimpleExoPlayer.Builder(this).build()
-        // Bind the player to the view.
-        playerView.player = mPlayer
+        binding.playerView.player = mPlayer
         mPlayer!!.playWhenReady = true
         mPlayer!!.seekTo(playbackPosition)
+
         NetworkLiveData.observe(this, { status ->
             if (status)
                 mPlayer!!.prepare(buildMediaSource(), false, false)
@@ -96,7 +141,7 @@ class MainActivity : AppCompatActivity() {
 
         val dataSourceFactory = DefaultHttpDataSourceFactory("exo-player")
         val hlsMediaSource =
-            HlsMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(hlsUrl))
+            HlsMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(videoUrl))
 
         return hlsMediaSource
     }
