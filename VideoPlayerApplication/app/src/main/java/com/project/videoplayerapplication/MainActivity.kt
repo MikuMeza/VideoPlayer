@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
     private var playWhenReady = true
     private var currentWindow = 0
     private var playbackPosition: Long = 0
-
+    private lateinit var playerNotificationManager: PlayerNotificationManager
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,45 +42,48 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-//    private fun initPlayerNotificationManager() {
-//        val channel = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-//            NotificationChannel(
-//                NOTIFICATION_CHANNEL,
-//                NOTIFICATION_CHANNEL,
-//                NotificationManager.IMPORTANCE_HIGH
-//            )
-//        } else {
-//            TODO("VERSION.SDK_INT < O")
-//        }
-//        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-//        notificationManager.createNotificationChannel(channel)
-//
-//        playerNotificationManager = PlayerNotificationManager.Builder(this,
-//            NOTIFICATION_ID,
-//            NOTIFICATION_CHANNEL,
-//            object : PlayerNotificationManager.MediaDescriptionAdapter {
-//                override fun getCurrentContentTitle(player: Player): CharSequence =
-//                    player.currentMediaItem?.mediaMetadata?.title ?: "Music"
-//
-//                override fun createCurrentContentIntent(player: Player): PendingIntent? {
-//                    return null
-//                }
-//
-//                override fun getCurrentContentText(player: Player): CharSequence? {
-//                    return "Music Content Text"
-//                }
-//
-//                override fun getCurrentLargeIcon(
-//                    player: Player,
-//                    callback: PlayerNotificationManager.BitmapCallback
-//                ): Bitmap? {
-//                    return BitmapFactory.decodeResource(applicationContext.resources, R.drawable.ic_play_button)
-//                }
-//
-//            })
-//            .build()
-//        playerNotificationManager.setPlayer(exoplayer)
-//    }
+    private fun initPlayerNotificationManager() {
+        val channel = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel(
+                NOTIFICATION_CHANNEL,
+                NOTIFICATION_CHANNEL,
+                NotificationManager.IMPORTANCE_HIGH
+            )
+        } else {
+            TODO("VERSION.SDK_INT < O")
+        }
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+//        playerNotificationManager.setColor(R.color.design_default_color_primary)
+
+        playerNotificationManager = PlayerNotificationManager.Builder(this,
+            NOTIFICATION_ID,
+            NOTIFICATION_CHANNEL,
+            object : PlayerNotificationManager.MediaDescriptionAdapter {
+                override fun getCurrentContentTitle(player: Player): CharSequence =
+                    player.currentMediaItem?.mediaMetadata?.title ?: "Video"
+
+                override fun createCurrentContentIntent(player: Player): PendingIntent? {
+                    return null
+                }
+
+                override fun getCurrentContentText(player: Player): CharSequence? {
+                    return "Music Content Text"
+                }
+
+
+                override fun getCurrentLargeIcon(
+                    player: Player,
+                    callback: PlayerNotificationManager.BitmapCallback
+                ): Bitmap? {
+                    return BitmapFactory.decodeResource(applicationContext.resources, R.drawable.ic_baseline_play_circle_outline_24)
+                }
+
+            })
+            .build()
+        playerNotificationManager.setColor(R.color.purple_200)
+        playerNotificationManager.setPlayer(mPlayer)
+    }
     private fun initPlayer() {
         mPlayer = SimpleExoPlayer.Builder(this).build()
         binding.playerView.player = mPlayer
@@ -89,7 +92,11 @@ class MainActivity : AppCompatActivity() {
 
         NetworkLiveData.observe(this, { status ->
             if (status)
+            {
+                initPlayerNotificationManager()
                 mPlayer!!.prepare(buildMediaSource(), false, false)
+            }
+
             else
                 Toast.makeText(this,"No network available",Toast.LENGTH_LONG).show()
         })
